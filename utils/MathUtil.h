@@ -37,4 +37,7 @@ public:
 	 */
 	UFUNCTION(BlueprintPure, Category = "Math|Interpolation")
 	static float CubicBezierEase(float X1, float Y1, float X2, float Y2, float Value);
+
+	UFUNCTION(BlueprintPure, Category = "Math")
+	static float Normalize(float Min, float Max, float Value);
 };

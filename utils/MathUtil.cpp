@@ -39,3 +39,10 @@ float UMathUtil::CubicBezierEase(float X1, float Y1, float X2, float Y2, float V
   float solvedT = SolveCurveT(X1, X2, ClampedT);
   return SampleCurve(Y1, Y2, solvedT);
 }
+
+float UMathUtil::Normalize(float Min, float Max, float Value) {
+  float Range = Max - Min;
+  if(FMath::Abs(Range) < 1e-12) return 0.0;
+  float Normalized = (Value - Min) / Range;
+  return FMath::Clamp(Normalized, 0.0, 1.0);
+}
