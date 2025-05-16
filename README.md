@@ -2,6 +2,10 @@
 
 Unreal Engine utilities
 
+### Animation
+
+- Tweening
+
 ### Controllers
 
 - WebSockets
