@@ -6,31 +6,76 @@
 #include "UObject/NoExportTypes.h"
 #include "Tween.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTweenUpdate, const float&, progress);
+// Delegate signatures for callbacks
+DECLARE_DYNAMIC_DELEGATE_OneParam(FTweenUpdateSignature, float, Value);
+DECLARE_DYNAMIC_DELEGATE(FTweenCompleteSignature);
 
-/**
- * A single tween
- */
-UCLASS()
-class UTween : public UObject {
+UENUM(BlueprintType)
+enum class ETweenEaseType : uint8 {
+	Linear UMETA(DisplayName = "Linear"),
+	CubicBezier UMETA(DisplayName = "CubicBezier"),
+	EaseCircIn UMETA(DisplayName = "CircIn"),
+	EaseCircInOut UMETA(DisplayName = "CircInOut"),
+	EaseCircOut UMETA(DisplayName = "CircOut"),
+	EaseCubicIn UMETA(DisplayName = "CubicIn"),
+	EaseCubicInOut UMETA(DisplayName = "CubicInOut"),
+	EaseCubicOut UMETA(DisplayName = "CubicOut"),
+	EaseExpoIn UMETA(DisplayName = "ExpoIn"),
+	EaseExpoInOut UMETA(DisplayName = "ExpoInOut"),
+	EaseExpoOut UMETA(DisplayName = "ExpoOut"),
+	EaseQuadIn UMETA(DisplayName = "QuadIn"),
+	EaseQuadInOut UMETA(DisplayName = "QuadInOut"),
+	EaseQuadOut UMETA(DisplayName = "QuadOut"),
+	EaseQuartIn UMETA(DisplayName = "QuartIn"),
+	EaseQuartInOut UMETA(DisplayName = "QuartInOut"),
+	EaseQuartOut UMETA(DisplayName = "QuartOut"),
+	EaseQuintIn UMETA(DisplayName = "QuintIn"),
+	EaseQuintInOut UMETA(DisplayName = "QuintInOut"),
+	EaseQuintOut UMETA(DisplayName = "QuintOut"),
+	EaseSineIn UMETA(DisplayName = "SineIn"),
+	EaseSineInOut UMETA(DisplayName = "SineInOut"),
+	EaseSineOut UMETA(DisplayName = "SineOut"),
+	EaseSinWave UMETA(DisplayName = "SinWave")
+};
+
+UCLASS(BlueprintType)
+class TELIBRARY_API UTween : public UObject {
 	GENERATED_BODY()
 
 public:
 
-	UPROPERTY(BlueprintAssignable, Category = "Animation|Tween") FOnTweenUpdate OnStart;
-	UPROPERTY(BlueprintAssignable, Category = "Animation|Tween") FOnTweenUpdate OnUpdate;
-	UPROPERTY(BlueprintAssignable, Category = "Animation|Tween") FOnTweenUpdate OnComplete;
+	UFUNCTION(
+		BlueprintCallable,
+		meta = (
+			WorldContext = "Target",
+			DisplayName = "Tween",
+			AutoCreateRefTerm = "CubicBezier"
+		),
+		Category = "Tween"
+	)
+	static UTween* Tween(UObject* Target, float Duration, float Delay = 0.0f, ETweenEaseType EaseType = ETweenEaseType::Linear, float X0 = 0.33f, float Y0 = 0.33f, float X1 = 0.67f, float Y1 = 0.67f);
 
-	UFUNCTION(BlueprintCallable, Category = "Animation|Tween") void Setup(double duration, double delay, float x0, float y0, float x1, float y1);
-	bool Update(double now);
+	// Callbacks
+	UFUNCTION(BlueprintCallable, Category = "Tween")
+	void SetOnUpdate(const FTweenUpdateSignature& Callback);
+
+	UFUNCTION(BlueprintCallable, Category = "Tween")
+	void SetOnComplete(const FTweenCompleteSignature& Callback);
+
+	// Internal tick
+	bool Tick(float DeltaTime);
 
 private:
 
-	double startTime;
-	double endTime;
-	float easeX0;
-	float easeY0;
-	float easeX1;
-	float easeY1;
-
+	float Delay;
+	float Duration;
+	float Elapsed;
+	float X0;
+	float Y0;
+	float X1;
+	float Y1;
+	ETweenEaseType EaseType;
+	FTweenUpdateSignature OnUpdate;
+	FTweenCompleteSignature OnComplete;
+	
 };
