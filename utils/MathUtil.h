@@ -6,11 +6,19 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "MathUtil.generated.h"
 
+#ifndef PI
+#define PI 3.14159265358979323846f
+#endif
+
+#ifndef TAU
+#define TAU 6.28318530717958647692f
+#endif
+
 /**
  * Blueprint-accessible math utility functions
  */
 UCLASS()
-class UMathUtil : public UBlueprintFunctionLibrary {
+class TELIBRARY_API UMathUtil : public UBlueprintFunctionLibrary {
 	GENERATED_BODY()
 	
 public:
