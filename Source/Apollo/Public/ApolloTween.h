@@ -4,14 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "Tween.generated.h"
+#include "ApolloTween.generated.h"
 
 // Delegate signatures for callbacks
-DECLARE_DYNAMIC_DELEGATE_OneParam(FTweenUpdateSignature, float, Value);
-DECLARE_DYNAMIC_DELEGATE(FTweenCompleteSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FApolloTweenUpdate, float, Value);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FApolloTweenCallback);
 
+/**
+ * Easing types
+ */
 UENUM(BlueprintType)
-enum class ETweenEaseType : uint8 {
+enum class EApolloTweenEaseType : uint8 {
 	Linear UMETA(DisplayName = "Linear"),
 	CubicBezier UMETA(DisplayName = "CubicBezier"),
 	EaseCircIn UMETA(DisplayName = "CircIn"),
@@ -35,11 +38,14 @@ enum class ETweenEaseType : uint8 {
 	EaseSineIn UMETA(DisplayName = "SineIn"),
 	EaseSineInOut UMETA(DisplayName = "SineInOut"),
 	EaseSineOut UMETA(DisplayName = "SineOut"),
-	EaseSinWave UMETA(DisplayName = "SinWave")
+	EaseSineWave UMETA(DisplayName = "SineWave")
 };
 
+/**
+ * Tweening
+ */
 UCLASS(BlueprintType)
-class TELIBRARY_API UTween : public UObject {
+class UApolloTween : public UObject {
 	GENERATED_BODY()
 
 public:
@@ -51,18 +57,28 @@ public:
 			DisplayName = "Tween",
 			AutoCreateRefTerm = "CubicBezier"
 		),
-		Category = "Tween"
+		Category = "Apollo|Tween"
 	)
-	static UTween* Tween(UObject* Target, float Duration, float Delay = 0.0f, ETweenEaseType EaseType = ETweenEaseType::Linear, float X0 = 0.33f, float Y0 = 0.33f, float X1 = 0.67f, float Y1 = 0.67f);
+	static UApolloTween* ApolloTween(
+		UObject* Target,
+		float Duration,
+		float Delay = 0.0f,
+		float StartValue = 0.0f,
+		float EndValue = 1.0f,
+		EApolloTweenEaseType EaseType = EApolloTweenEaseType::Linear,
+		float X0 = 0.33f,
+		float Y0 = 0.33f,
+		float X1 = 0.67f,
+		float Y1 = 0.67f
+	);
 
-	// Callbacks
-	UFUNCTION(BlueprintCallable, Category = "Tween")
-	void SetOnUpdate(const FTweenUpdateSignature& Callback);
+	UPROPERTY(BlueprintAssignable, Category="Apollo|Tween")
+	FApolloTweenCallback OnStart;
+	UPROPERTY(BlueprintAssignable, Category="Apollo|Tween")
+	FApolloTweenUpdate OnUpdate;
+	UPROPERTY(BlueprintAssignable, Category="Apollo|Tween")
+	FApolloTweenCallback OnComplete;
 
-	UFUNCTION(BlueprintCallable, Category = "Tween")
-	void SetOnComplete(const FTweenCompleteSignature& Callback);
-
-	// Internal tick
 	bool Tick(float DeltaTime);
 
 private:
@@ -70,12 +86,15 @@ private:
 	float Delay;
 	float Duration;
 	float Elapsed;
+	float StartValue;
+	float EndValue;
 	float X0;
 	float Y0;
 	float X1;
 	float Y1;
-	ETweenEaseType EaseType;
-	FTweenUpdateSignature OnUpdate;
-	FTweenCompleteSignature OnComplete;
+	EApolloTweenEaseType EaseType;
+	bool tweenStarted;
+
+	float getEase(float value);
 	
 };

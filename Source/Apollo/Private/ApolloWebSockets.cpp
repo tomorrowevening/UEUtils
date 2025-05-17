@@ -1,24 +1,24 @@
 // Copyright Tomorrow Evening, all rights reserved.
 
-#include "SocketController.h"
+#include "ApolloWebSockets.h"
 #if WITH_TELIB_WEBSOCKETS
 #include "WebSocketsModule.h"
 #endif
 
-USocketController* USocketController::_instance = nullptr;
+UApolloWebSockets* UApolloWebSockets::_instance = nullptr;
 
-USocketController::USocketController() {
+UApolloWebSockets::UApolloWebSockets() {
 	_instance = this;
 	isConnected = false;
 }
 
-USocketController* USocketController::Get() {
+UApolloWebSockets* UApolloWebSockets::Get() {
 	return _instance;
 }
 
 // Socket
 
-void USocketController::connect(FString socketURL) {
+void UApolloWebSockets::connect(FString socketURL) {
 	if(isConnected) return;
 
 #if WITH_TELIB_WEBSOCKETS
@@ -26,7 +26,7 @@ void USocketController::connect(FString socketURL) {
 		FModuleManager::Get().LoadModule("WebSockets");
 	}
 
-	USocketController* instance = this;
+	UApolloWebSockets* instance = this;
 	WebSocket = FWebSocketsModule::Get().CreateWebSocket(socketURL);
 
 	WebSocket->OnConnected().AddLambda([instance]() {
@@ -52,14 +52,14 @@ void USocketController::connect(FString socketURL) {
 #endif
 }
 
-void USocketController::disconnect() {
+void UApolloWebSockets::disconnect() {
 	isConnected = false;
 #if WITH_TELIB_WEBSOCKETS
 	if(WebSocket->IsConnected()) WebSocket->Close();
 #endif
 }
 
-void USocketController::send(FString message) {
+void UApolloWebSockets::send(FString message) {
 	if(!isConnected) return;
 
 #if WITH_TELIB_WEBSOCKETS
@@ -70,7 +70,7 @@ void USocketController::send(FString message) {
 }
 
 #if WITH_TELIB_JSON
-void USocketController::sendJSON(TSharedPtr<FJsonObject> JsonObject) {
+void UApolloWebSockets::sendJSON(TSharedPtr<FJsonObject> JsonObject) {
 	FString OutputString;
 	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
 	FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);

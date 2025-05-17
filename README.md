@@ -1,6 +1,7 @@
-# Tomorrow Evening Unreal Engine Utils
+# Apollo
 
-Unreal Engine utilities
+A creative coding library for Unreal Engine.
+Clone into your Plugins folder and enable `Apollo` in your Plugins.
 
 ### Animation
 
